@@ -445,13 +445,11 @@ class Unparser:
     format_conversions = {97: 'a', 114: 'r', 115: 's'}
 
     def _FormattedValue(self, t):
-        # FormattedValue(expr value, int? conversion, expr? format_spec)
         self.write("{")
         self.dispatch(t.value)
         if t.conversion is not None and t.conversion != -1:
             self.write("!")
             self.write(self.format_conversions[t.conversion])
-            #raise NotImplementedError(ast.dump(t, True, True))
         if t.format_spec is not None:
             self.write(":")
             if isinstance(t.format_spec, ast.Str):
@@ -461,14 +459,20 @@ class Unparser:
         self.write("}")
 
     def _JoinedStr(self, t):
-        # JoinedStr(expr* values)
-        self.write("f'''")
+        self.write("f")
+        strings = []
         for value in t.values:
             if isinstance(value, ast.Str):
-                self.write(value.s)
-            else:
-                self.dispatch(value)
-        self.write("'''")
+                strings.append(value.s)
+                continue
+            unparser = type(self)(value, StringIO())
+            s = unparser.f.getvalue().rstrip()
+            for delimiter in ['"""', "'''", '"', "'"]:
+                if s.startswith(delimiter) and s.endswith(delimiter):
+                    s = s[len(delimiter):-len(delimiter)]
+                    break
+            strings.append(s)
+        self.write(repr(''.join(strings)))
 
     def _Name(self, t):
         self.write(t.id)

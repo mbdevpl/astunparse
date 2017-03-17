@@ -307,6 +307,10 @@ class AstunparseCommonTestCase:
         self.check_roundtrip('f"{key:4}={value!s:#06x}"')
         self.check_roundtrip('f"{key:4}={value!r:#06x}"')
         self.check_roundtrip('f"{key:4}={value!a:#06x}"')
+        self.check_roundtrip('''f"{k}={v!r}"''')
+        self.check_roundtrip('''f"functools.{qualname}({', '.join(args)})"''')
+        self.check_roundtrip('''f"{rootpath}\\\\{'-'.join(components)}"''')
+        self.check_roundtrip('''f\'\'\'-{f"""*{f"+{f'.{x}.'}+"}*"""}-\'\'\'''')
 
     @unittest.skipUnless(six.PY2, "Only for Python 2")
     def test_repr(self):
