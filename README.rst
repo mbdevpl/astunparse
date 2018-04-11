@@ -8,6 +8,10 @@ AST Unparser
 .. image:: https://travis-ci.org/simonpercivall/astunparse.png?branch=master
     :target: https://travis-ci.org/simonpercivall/astunparse
 
+.. image:: https://codecov.io/gh/mbdevpl/astunparse/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/mbdevpl/astunparse
+    :alt: test coverage from Codecov
+
 .. image:: https://readthedocs.org/projects/astunparse/badge/
     :target: https://astunparse.readthedocs.org/
 
