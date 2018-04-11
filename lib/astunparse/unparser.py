@@ -6,6 +6,7 @@ import ast
 import os
 import tokenize
 from six import StringIO
+from six.moves import cStringIO
 
 # Large float and imaginary literals get turned into infinities in the AST.
 # We unparse those infinities to INFSTR.
@@ -23,6 +24,14 @@ def interleave(inter, f, seq):
         for x in seq:
             inter()
             f(x)
+
+
+def strip_delimiters(text):
+    for delimiter in ['"""', "'''", '"', "'"]:
+        if text.startswith(delimiter) and text.endswith(delimiter):
+            return text[len(delimiter):-len(delimiter)]
+    return text
+
 
 class Unparser:
     """Methods in this class recursively traverse an AST and
@@ -454,6 +463,10 @@ class Unparser:
             self.write(":")
             if isinstance(t.format_spec, ast.Str):
                 self.write(t.format_spec.s)
+            elif isinstance(t.format_spec, ast.JoinedStr):
+                unparser = type(self)(t.format_spec, cStringIO())
+                unparsed = unparser.f.getvalue().rstrip()
+                self.write(strip_delimiters(unparsed[1:]))
             else:
                 self.dispatch(t.format_spec)
         self.write("}")
@@ -465,13 +478,9 @@ class Unparser:
             if isinstance(value, ast.Str):
                 strings.append(value.s)
                 continue
-            unparser = type(self)(value, StringIO())
-            s = unparser.f.getvalue().rstrip()
-            for delimiter in ['"""', "'''", '"', "'"]:
-                if s.startswith(delimiter) and s.endswith(delimiter):
-                    s = s[len(delimiter):-len(delimiter)]
-                    break
-            strings.append(s)
+            unparser = type(self)(value, cStringIO())
+            unparsed = unparser.f.getvalue().rstrip()
+            strings.append(strip_delimiters(unparsed))
         self.write(repr(''.join(strings)))
 
     def _Name(self, t):
