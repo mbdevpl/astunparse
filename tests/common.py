@@ -165,6 +165,8 @@ async def f():
 class AstunparseCommonTestCase:
     # Tests for specific bugs found in earlier versions of unparse
 
+    maxDiff = None
+
     def assertASTEqual(self, dump1, dump2):
         raise NotImplementedError()
 
